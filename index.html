@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>车型识别</title>
+  <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+  <script src='https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js'></script>
+
+
+</head>
+<style>
+  h1{
+     font-family: "Helvetica Neue",Helvetica,Arial,"Hiragino Sans GB","Hiragino Sans GB W3","WenQuanYi Micro Hei","Microsoft YaHei UI","Microsoft YaHei",sans-serif;
+     color: #666;
+     font-size: 22px;
+  }
+  hr{
+    margin-top: 10px;
+  }
+
+  .ta-c{
+    text-align: center;
+  }
+  
+  .image_container{
+    position: relative;
+    display: flex;
+    border: 1px dashed #ddd;
+    padding: 5px;
+    height: 300px;
+    text-align: center;
+    align-items: center;
+      justify-content: center;
+  }
+  
+  .margin-bottom-20{
+    margin-bottom: 20px;
+  }
+
+  .margin-bottom-40{
+    margin-bottom: 40px;
+  }
+
+  .margin-top-40{
+    margin-top: 40px;
+  }
+
+  .margin-top-20{
+    margin-top: 20px;
+  }
+
+  .content{
+    padding-top: 20px;
+    border: 1px solid red;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+
+  .servive-block-default{
+    background: #fafafa;
+      border: solid 1px #eee;
+  }
+  .servive-block{
+    padding: 20px 30px;
+    padding-bottom: 35px;
+      text-align: center;
+      margin-bottom: 20px;
+  }
+  
+  input[type=file] {
+      margin-top: 5px;
+      opacity: 0;
+      position: absolute;
+      top:0;
+      width: 100%;
+  }
+  
+  .upload-fm{
+    position: relative;
+  }
+  .upload-btn{
+    display: block;
+    width: 100%;
+  }
+
+  .copyright {
+      color: #777 !important;
+      font-size: 14px;
+      padding: 20px 0;
+      background: #f4f4f4;
+      border-top: solid 1px #e5e5e5;
+  }
+  .logo img{
+    max-width:80px;
+  }
+
+  p{
+    padding-top: 10px;
+  }
+
+  @media screen and (max-width: 768px){
+    .copyright  .row div.col-md-6 {
+        text-align: center;
+        margin-bottom: 10px;
+        
+    }
+
+    .image_container{
+      height: 200px;
+    }
+  }
+
+  .servive-block-default:hover {
+      box-shadow: 0 0 8px #eee;
+  }
+
+  .tips{
+    /*display: none;*/
+    color: #ddd;
+    font-size: 20px;
+  }
+
+  .list-group{
+    display: none;
+  }
+   .panel-sea {
+        border-color: #1abc9c;
+    }
+
+    .panel-sea > .panel-heading {
+    text-align: initial;
+    background: #1abc9c;
+    }
+
+    .panel-heading {
+    color: #fff;
+    padding: 5px 15px 4px 15px;
+    }
+  
+  .showResult{
+    display: none;
+  }
+
+  .active td{
+    background-color: #DFF0D8 !important;
+  }
+
+  .loading{
+      display: none;
+      background-color: transparent;
+      width: 45px;
+      height: 45px;
+      border: 1px solid #1abc9c;
+      border-radius: 50%;
+      border-top-color: transparent;
+      border-left-color: transparent;
+      -webkit-transition: all .25s;
+      transition: all .25s;
+      -webkit-animation: rotate .6s linear infinite;
+      animation: rotate .6s linear infinite;
+      margin:auto;
+  }
+
+  @keyframes rotate{
+    0% {
+      -webkit-transform: rotate(0);
+      transform: rotate(0);
+    }
+    100% {
+       -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  
+    
+</style>
+<body>
+
+
+  <div class="container">
+    <header class="ta-c clearfix">
+      <img src="/static/logo.png" alt="" style="max-width: 80px;margin-top: 20px;" class="pull-left">
+      <!-- <h1 class="pull-right">测试图片识别</h1> -->
+    </header>
+    <hr class="devider devider-dotted">
+    <div class="title margin-bottom-20" style="text-align: center;">
+      <h1>车型识别</h1>
+    </div>
+    
+    <div class="row">
+    <div class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+      <div class="servive-block servive-block-default">
+        <div class="row margin-bottom-20">
+          <div class="image_container col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
+            <img id="preview" style="max-width: 100%; max-height: 100%" />
+            <div class="tips">
+              <span class="picTips">图片显示区</span>
+            </div>
+          </div>
+        </div>
+        <div class="row margin-bottom-40 ">
+          <form id="upload_form" enctype="multipart/form-data" class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1 upload-fm">
+            <button class="upload-btn btn btn-primary"">
+              <span class="glyphicon glyphicon-upload"></span>
+            上传图片</button>
+            <input type="file" class="upload-input-file" accept="image/gif,image/jpeg,image/jpg,image/png,image/svg" id="file_upload" name="file" />
+          </form>
+        </div>
+
+        <div class="row">
+          <div class="loading col-xs-offset-1 col-md-10 col-md-offset-1">
+          </div>
+        </div>
+        
+        <div class="row showResult">
+          <div class=" margin-bottom-40 ">
+            <div class="panel panel-sea ">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><span class="glyphicon glyphicon-menu-right"></span>请选择测试结果</h3>
+                    </div>
+                    <table class="table table-striped table-hover app_view_history">
+                        <tbody id="resultTable">
+                        </tbody>
+                    </table>
+                </div>
+        </div>
+        <button class="btn btn-success check">确认提交</button>
+        </div>
+
+
+      </div>
+    </div>
+      
+    </div>
+  </div>
+    
+    <div class="copyright">
+      <div class="container">
+        <div class="row logo">
+          <div class="col-lg-8  col-xs-12 col-md-6 col-sm-6 text-left">
+            <img src="/static/logo.png" alt="">
+                </div>
+
+
+          <div class="col-lg-4  col-xs-12 col-md-6 col-sm-6 text-right">
+            <p>易车网大数据中心</p>
+                </div>
+        </div>
+        
+      </div>
+      
+    </div>
+  
+</body>
+
+<script>
+
+  $(function() {
+    var checkResult = '';
+    var imgData = '';
+
+    //样式的修正
+    var paddingLeft = $('.list-group').css('padding-right');
+    $('.list-group').css('padding-left', paddingLeft);
+
+    //兼容微信端的照相
+    var u = navigator.userAgent;
+    if(u.toLowerCase().match(/MicroMessenger/i)=='micromessenger'){
+      $('.upload-input-file').attr('capture','camera');
+      $('.upload-input-file').attr('accept','image/*');
+    }
+
+    //input type = file中发生change事件时执行的函数
+    $("#file_upload").change(function(ev) {
+      checkResult = ''
+      imgData = ''
+      //如果不是点击的取消
+      if(($('#file_upload').get(0).files[0])){
+         $('.tips').css('display','none');
+         $('.showResult').css('display','none');
+         $('#resultTable').html("");
+          var windowURL = window.URL || window.webkitURL;
+          var input = ev.target;
+          if(input.files[0]){
+            var dataURL = windowURL.createObjectURL(input.files[0]);
+              $("#preview").attr("src", dataURL); 
+          }
+
+         var formdata =new FormData();
+         formdata.append('file',$('#file_upload').get(0).files[0]);
+         $.ajax({
+                url: "/img/parse",
+                type: "POST",  
+                data: formdata,  
+                cache: false, 
+                contentType: false, 
+                processData: false,
+                beforeSend:function(){
+                  $('.loading').css('display','block');
+                    
+                },
+                success: function(data){
+                  $('.loading').css('display','none');
+                  console.log(data);
+                  if(data.code !=0){
+                    alert('图片识别错误')
+                    $('.tips').css('display','block');
+                  }
+                  else{
+                   
+                    var payload = data.payload;
+                    var str = "<tr><td class='text-center' colspan='3'>ID</td><td class='text-center' colspan='3'>车型</td><td class='text-center' colspan='3'>概率</td></tr>";
+                    if(payload.length == 0){
+                      str +="<tr><td class='text-center' colspan='9'>未能匹配到数据</td></tr>"
+                       var windowURL = window.URL || window.webkitURL;
+                      var input = ev.target;
+                      if(input.files[0]){
+                        var dataURL = windowURL.createObjectURL(input.files[0]);
+                        $("#preview").attr("src", dataURL); 
+                      }
+                      $('#resultTable').append(str);
+                      $('.showResult').css('display','block');
+                      $('.check').attr('disabled','disabled');
+                      return;
+                    }
+                    $('.check').attr('disabled',false);
+                   imgData = data.img;
+                   $.each(payload,function(index,item){
+                      var model = item['brand-model'];
+                      var split = model.indexOf('：');
+                      var carId = model.slice(0,split);
+                      var carInfo = model.slice(split+1);
+                      var prop = (Number(item.prob)*100).toFixed(2);
+
+                      str+="<tr class='in-select'><td class='text-center' colspan='3'>"+carId+"</td><td class='text-center' colspan='3'>"+carInfo+"</td><td class='text-center' colspan='3'>"+prop+"%</td></tr>"
+                      })
+                    str +="<tr class='in-select'><td class='text-center' colspan='9'>以上都不是</td></tr>"
+                    $('#resultTable').append(str);
+                    $('.showResult').css('display','block');
+
+                  }       
+                },
+                 error: function (error) {  
+                    $('.loading').css('display','none');
+                    alert("服务器返回错误");  
+                    // $('.tips').css('display','block');
+                }    
+      })
+
+      }
+      else{
+          //此处点击了取消，没有反应
+      }
+     
+    });
+    
+    $('.table').on('click','tr.in-select',function(){
+        checkResult = $(this).children('td').eq(0).html();
+        console.log($(this).children('td').eq(0).html());
+
+        $(this).addClass('active').siblings().removeClass('active');
+    })
+
+    $('.check').on('click',function(){
+      // alert(checkResult);
+      if(checkResult == ''){
+        alert('请选择车型')
+      }else{
+        $.ajax({
+                url: "/img/result?id="+checkResult+"&img="+imgData,
+                type: "GET",  
+                success: function(data){
+                  alert('提交成功')
+                  $(".showResult").fadeOut('slow');
+                },
+                error:function(data){
+                  alert('提交失败')
+                }
+        })
+      } 
+    });
+
+  });
+
+
+</script>
+
+</html>
+
+
